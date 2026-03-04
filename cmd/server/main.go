@@ -6,15 +6,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/britinogn/bizkeeper/internal/db"
+	"github.com/britinogn/bizkeeper/config"
 )
 
 func main() {
 	// Load env
 	db.Init()
-
-	// Connect to database
-	ctx := context.Background()
-	_, err := db.ConnectPostgres(ctx)
+	cfg := config.Load()
+	_, err := db.ConnectPostgres(context.Background(), cfg)
 	if err != nil {
 		log.Fatal("Database connection failed:", err)
 	}

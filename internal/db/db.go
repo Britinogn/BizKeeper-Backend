@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 
+	"github.com/britinogn/bizkeeper/config"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -24,13 +24,13 @@ func Init() {
 	log.Println("Warning: .env file not found in any location")
 }
 
-func ConnectPostgres(ctx context.Context) (*gorm.DB, error) {
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
-	sslmode := os.Getenv("DB_SSLMODE")
+func ConnectPostgres(ctx context.Context, cfg *config.Config) (*gorm.DB, error) {
+	host := cfg.DBHost
+	port := cfg.DBPort
+	user := cfg.DBUser
+	password := cfg.DBPassword
+	dbName := cfg.DBName
+	sslmode := cfg.DBSSLMode
 
 	if sslmode == "" {
 		sslmode = "require"
@@ -62,6 +62,7 @@ func ConnectPostgres(ctx context.Context) (*gorm.DB, error) {
 	log.Println("Successfully connected to database")
 	return DB, nil
 }
+
 
 func Close() error {
 	if DB != nil {
