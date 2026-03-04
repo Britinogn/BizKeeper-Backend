@@ -1,0 +1,8 @@
+.env
+.env.example
+
+# Editor
+.vscode/
+.vscode
+.idea/
+vendor/
