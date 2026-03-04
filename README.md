@@ -122,24 +122,55 @@ System checks the last recorded purchase date of a product and flags products no
 - Admin endpoints restricted to aggregate queries only
 - Strict multi-tenant data isolation
 
+## Backend Tech Stack
+
+- **Framework:** Gin
+- **Database:** PostgreSQL with GORM
+- **Live Reload:** Air
+- **Authentication:** JWT
+- **Configuration:** godotenv
+
 ## Server Folder Structure
 
 ```text
 server/
 ├── cmd/
+│   └── server/
+│       └── main.go
 ├── config/
+│   └── config.go
 ├── internal/
 │   ├── db/
+│   │   └── db.go
 │   ├── handler/
+│   │   ├── auth_handler.go
+│   │   ├── product_handler.go
+│   │   └── purchase_handler.go
 │   ├── middleware/
+│   │   ├── auth_middleware.go
+│   │   └── role_middleware.go
 │   ├── model/
+│   │   ├── User.go
+│   │   ├── product_item.go
+│   │   └── purchase_session.go
 │   ├── repository/
+│   │   ├── product_repo.go
+│   │   ├── purchase_repo.go
+│   │   └── user_repo.go
 │   ├── routes/
+│   │   ├── auth_route.go
+│   │   ├── product_route.go
+│   │   └── purchase_route.go
 │   └── services/
+│       ├── auth_service.go
+│       ├── product_service.go
+│       └── purchase_service.go
 ├── pkg/
 │   ├── response/
 │   └── utils/
+│       ├── hashedPassword.go
 │       └── jwt.go
+├── .air.toml
 ├── .env
 ├── .gitignore
 ├── go.mod
