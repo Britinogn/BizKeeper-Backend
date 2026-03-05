@@ -25,6 +25,7 @@ type PurchaseSession struct {
 	InvoiceReference *string        `                                json:"invoice_reference,omitempty"`
 	Notes            *string        `                                json:"notes,omitempty"`
 	ProductItems     []ProductItem  `gorm:"foreignKey:SessionID"     json:"product_items,omitempty"`
+	TotalAmount      float64        `gorm:"-"                        json:"total_amount"`
 	CreatedAt        time.Time      `                                json:"created_at"`
 	UpdatedAt        time.Time      `                                json:"updated_at"`
 	DeletedAt        gorm.DeletedAt `gorm:"index"                    json:"-"`

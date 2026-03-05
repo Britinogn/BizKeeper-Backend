@@ -113,3 +113,24 @@ func (h *AuthHandler) DeleteUser(c *gin.Context) {
 
 	response.OK(c, "account deleted successfully", nil)
 }
+
+func (h *AuthHandler) GetProfile (c *gin.Context){
+	userID, exists := c.Get("userID")
+	if !exists {
+		response.Unauthorized(c, "unauthorized")
+		return
+	}
+
+	user, err := h.authService.GetProfile(c.Request.Context(), userID.(string))
+	if err != nil {
+		switch err {
+		case services.ErrUserNotFound:
+			response.NotFound(c, err.Error())
+		default:
+			response.InternalServerError(c, "something went wrong")
+		}
+		return
+	}
+
+	response.OK(c, "profile fetched successfully", user)
+}

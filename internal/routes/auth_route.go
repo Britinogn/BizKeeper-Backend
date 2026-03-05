@@ -16,11 +16,12 @@ func AuthRoutes(rg *gin.RouterGroup, authHandler *handler.AuthHandler) {
 
 
 func UserRoutes(rg *gin.RouterGroup, authHandler *handler.AuthHandler) {
-	user := rg.Group("/user")
+	user := rg.Group("/settings")
 	// user.Use(middleware.AuthMiddleware())
 	{
 		user.PUT("/update", authHandler.UpdateUser)
 		user.DELETE("/delete", authHandler.DeleteUser)
+		user.GET("/profile", authHandler.GetProfile)
 	}
 
 }

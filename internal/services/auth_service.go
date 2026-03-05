@@ -18,6 +18,7 @@ var (
 	ErrInvalidCredentials     = errors.New("invalid email or password")
 	ErrInvalidToken           = errors.New("invalid token")
 	ErrDatabaseOperation      = errors.New("database operation failed")
+	ErrUserNotFound           = errors.New("user not found")
 )
 
 type UserRepo interface {
@@ -166,3 +167,24 @@ func (s *AuthService) DeleteUser(ctx context.Context, userID string) error {
 
 	return s.userRepo.DeleteUser(ctx, user)
 }
+
+func (s *AuthService) GetProfile(ctx context.Context, userID string) (*model.User, error) {
+	user, err := s.userRepo.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, ErrUserNotFound
+	}
+
+	return user, nil
+}
+
+
+// func (s *AuthService) GetProfile(ctx context.Context, email string) (*model.User, error) {
+// 	user, err := s.userRepo.GetUserByEmail(ctx, email)
+// 	if err != nil {
+// 		return nil, ErrUserNotFound
+// 	}
+
+// 	user.Password = ""
+
+// 	return user, nil
+// }

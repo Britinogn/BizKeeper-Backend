@@ -15,6 +15,7 @@ type ProductItem struct {
 	UnitPrice float64        `gorm:"not null"                 json:"unit_price"`
 	Category  string         `gorm:"not null"                 json:"category"`
 	Notes     string         `                                json:"notes"`
+	SubtotalAmount  float64        `gorm:"-"                        json:"subtotal_amount"`
 	CreatedAt time.Time      `                                json:"created_at"`
 	UpdatedAt time.Time      `                                json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index"                    json:"-"`

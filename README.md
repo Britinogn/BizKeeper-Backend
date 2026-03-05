@@ -123,9 +123,10 @@ The API routes are managed strictly by authentication and role middleware.
    - `/register`: Allows Business Owners to create accounts.
    - `/login`: Generates JWT tokens for secure authentication.
 
-2. **Protected User Routes** (`/api/user`)
-   - `/update`: Updates the currently authenticated user's profile.
-   - `/delete`: Deletes the user profile.
+2. **Protected User (Settings) Routes** (`/api/settings`)
+   - `/update`: Updates the authenticated user's profile.
+   - `/delete`: Deletes the authenticated user's profile.
+   - `/profile`: Gets the authenticated user's profile.
 
 3. **Protected Purchase Routes** (`/api/purchases`)
    - `POST ""`: Creates a new Purchase Session.

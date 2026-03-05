@@ -54,8 +54,13 @@ func (s *PurchaseService) CreatePurchaseSession(ctx context.Context, userID uuid
 	session.UserID = userID
 
 	// Set session ID on all product items
+	// for i := range session.ProductItems {
+	// 	session.ProductItems[i].SessionID = session.ID
+	// }
+	
 	for i := range session.ProductItems {
-		session.ProductItems[i].SessionID = session.ID
+		session.ProductItems[i].SubtotalAmount = float64(session.ProductItems[i].Quantity) * session.ProductItems[i].UnitPrice
+		session.TotalAmount += session.ProductItems[i].SubtotalAmount
 	}
 
 	return s.purchaseRepo.CreatePurchaseSession(ctx, session)
@@ -72,6 +77,13 @@ func (s *PurchaseService) GetPurchaseSessionByID(ctx context.Context, userID, se
 		return nil, ErrUnauthorizedSession
 	}
 
+	// Calculate subtotals and total
+	for i := range session.ProductItems {
+		session.ProductItems[i].SubtotalAmount = float64(session.ProductItems[i].Quantity) * session.ProductItems[i].UnitPrice
+		session.TotalAmount += session.ProductItems[i].SubtotalAmount
+	}
+
+
 	return session, nil
 }
 
@@ -83,7 +95,19 @@ func (s *PurchaseService) ListPurchaseSessions(ctx context.Context, userID uuid.
 		offset = 0
 	}
 
-	return s.purchaseRepo.ListPurchaseSessions(ctx, userID, limit, offset)
+	sessions, err := s.purchaseRepo.ListPurchaseSessions(ctx, userID, limit, offset)
+	if err != nil {
+		return nil, ErrSessionNotFound
+	}
+
+	for i := range sessions {
+    for j := range sessions[i].ProductItems {
+        sessions[i].ProductItems[j].SubtotalAmount = float64(sessions[i].ProductItems[j].Quantity) * sessions[i].ProductItems[j].UnitPrice
+        sessions[i].TotalAmount += sessions[i].ProductItems[j].SubtotalAmount
+    }
+}
+
+	return sessions, nil
 }
 
 func (s *PurchaseService) UpdatePurchaseSession(ctx context.Context, userID, sessionID uuid.UUID, updated *model.PurchaseSession) error {
