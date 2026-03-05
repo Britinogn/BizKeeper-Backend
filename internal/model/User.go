@@ -26,6 +26,14 @@ type User struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"                     json:"-"`
 }
 
+type RegistrationRequest struct {
+	FirstName string `json:"first_name" validate:"required,min=2,max=50"`
+	LastName  string `json:"last_name"  validate:"required,min=2,max=50"`
+	Email     string `json:"email"      validate:"required,email"`
+	Password  string `json:"password"   validate:"required,min=8"`
+}
+
+
 func (u *User) BeforeCreate(tx *gorm.DB) error {
 	u.ID = uuid.New()
 	return nil
