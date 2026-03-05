@@ -39,6 +39,15 @@ func (r *UserRepository) UpdateUser(ctx context.Context, user *model.User) error
 	return r.db.WithContext(ctx).Save(user).Error
 }
 
+// func (r *UserRepository) DeleteUser(ctx context.Context, user *model.User) error {
+// 	return r.db.WithContext(ctx).Delete(user).Error
+// }
+
 func (r *UserRepository) DeleteUser(ctx context.Context, user *model.User) error {
-	return r.db.WithContext(ctx).Delete(user).Error
+	return r.db.WithContext(ctx).Unscoped().Delete(user).Error
+}
+
+func (r *UserRepository) GetUserByID(ctx context.Context, id string) (*model.User, error) {
+	var user model.User
+	return &user, r.db.WithContext(ctx).Where("id = ?", id).First(&user).Error
 }

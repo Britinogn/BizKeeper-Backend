@@ -18,7 +18,7 @@ const (
 
 type PurchaseSession struct {
 	ID               uuid.UUID      `gorm:"type:uuid;primaryKey"     json:"id"`
-	UserID           uuid.UUID      `gorm:"type:uuid;not null;index" json:"user_id"`
+	userID           uuid.UUID      `gorm:"type:uuid;not null;index" json:"user_id"`
 	PurchaseDate     time.Time      `gorm:"not null"                 json:"purchase_date"`
 	SupplierName     string         `gorm:"not null"                 json:"supplier_name"`
 	PaymentMethod    PaymentMethod  `gorm:"type:varchar(20);not null" json:"payment_method"`

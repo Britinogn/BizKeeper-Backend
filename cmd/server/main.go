@@ -4,29 +4,48 @@ import (
 	"context"
 	"log"
 
-	"github.com/gin-gonic/gin"
-	"github.com/britinogn/bizkeeper/internal/db"
 	"github.com/britinogn/bizkeeper/config"
+	"github.com/britinogn/bizkeeper/internal/db"
+	"github.com/britinogn/bizkeeper/internal/handler"
+	"github.com/britinogn/bizkeeper/internal/repository"
+	"github.com/britinogn/bizkeeper/internal/routes"
+	"github.com/britinogn/bizkeeper/internal/services"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
+type handlers struct {
+	auth *handler.AuthHandler
+}
+
+func initHandlers(database *gorm.DB) *handlers {
+	// Repositories
+	userRepo := repository.NewUserRepository(database)
+
+	// Services
+	authService := services.NewAuthService(userRepo)
+
+	// Handlers
+	return &handlers{
+		auth: handler.NewAuthHandler(authService),
+	}
+}
+
 func main() {
-	// Load env
 	db.Init()
 	cfg := config.Load()
-	_, err := db.ConnectPostgres(context.Background(), cfg)
+	database, err := db.ConnectPostgres(context.Background(), cfg)
 	if err != nil {
 		log.Fatal("Database connection failed:", err)
 	}
 	defer db.Close()
+	log.Println("✓ Database connected successfully")
 
-	// Setup Gin
+	h := initHandlers(database)
+
 	r := gin.Default()
+	routes.SetupRoutes(r, h.auth)
 
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "BizKeeper is running"})
-	})
-
-	// Start server
 	log.Println("Server running on port 8080")
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal("Failed to start server:", err)

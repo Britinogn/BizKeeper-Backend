@@ -18,13 +18,13 @@ var (
 )
 
 type Cliams struct {
-	UserId string `json:"user_id"`
+	UserID string `json:"user_id"`
 	Email  string `json:"email"`
 	Role   string `json:"role,omitempty"`
 	jwt.RegisteredClaims
 }
 
-func getSecretKey()[]byte {
+func getSecretKey() []byte {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
 		log.Fatal("JWT_SECRET is not set")
@@ -32,27 +32,27 @@ func getSecretKey()[]byte {
 	return []byte(secret)
 }
 
-func GenerateToken(userId, email, role string) (string, error) {
-	// read expiration from env 
-	expirationTime :=  os.Getenv("JWT_EXPIRES_IN")
+func GenerateToken(userID, email, role string) (string, error) {
+	// read expiration from env
+	expirationTime := os.Getenv("JWT_EXPIRES_IN")
 	if expirationTime == "" {
 		expirationTime = "24h"
 	}
 
-	duration , err := time.ParseDuration(expirationTime)
+	duration, err := time.ParseDuration(expirationTime)
 	if err != nil {
 		duration = 24 * time.Hour
 	}
 
 	claims := Cliams{
-		UserId: userId,
-		Email: email,
-		Role: role,
+		UserID: userID,
+		Email:  email,
+		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   userId,  
+			Subject:   userID,
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
-			IssuedAt: jwt.NewNumericDate(time.Now()),
-			Issuer: "bizkeeper",
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			Issuer:    "bizkeeper",
 		},
 	}
 
