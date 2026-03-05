@@ -12,6 +12,7 @@ func SetupRoutes(
 	router *gin.Engine,
 	authHandler *handler.AuthHandler,
 	purchaseHandler *handler.PurchaseHandler,
+	dashboardHandler *handler.DashboardHandler,
 ) {
 	api := router.Group("/api")
 
@@ -42,4 +43,5 @@ func SetupRoutes(
 	AuthRoutes(public, authHandler)
 	UserRoutes(protected, authHandler)
 	PurchaseRoutes(protected, purchaseHandler)
+	DashboardRoutes(protected, dashboardHandler)
 }
