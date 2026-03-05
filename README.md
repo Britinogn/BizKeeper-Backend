@@ -1,8 +1,11 @@
 # BizKeeper
 
-BizKeeper is a digital ledger platform where business owners record their bulk product purchases in structured purchase sessions instead of writing them in a physical book.
+BizKeeper is a digital ledger platform where business owners record their bulk product purchases in structured purchase sessions .
 
 The system preserves the context of each buying event and transforms raw records into organized financial insight while maintaining strict data privacy.
+
+This directory contains the Go-based backend server which powers the entire BizKeeper ecosystem.
+
 
 ## Architectural Identity
 
@@ -11,6 +14,8 @@ BizKeeper is a multi-tenant, purchase session-based ledger system that provides 
 It is simple, focused, and purpose-built for secure digital purchase management.
 
 ## Users & Roles
+The system operates strictly on a multi-tenant RBAC (Role-Based Access Control) system:
+
 
 ### Business Owner
 
@@ -22,12 +27,8 @@ It is simple, focused, and purpose-built for secure digital purchase management.
 
 ### Admin (CEO)
 
-- Views platform-level statistics only
-- Sees number of users
-- Sees total purchase sessions
-- Sees total product items recorded
-- Never accesses individual business records
-- Fully role-gated
+- Views platform-level statistics only.
+- Restricted to high-level platform analytics (total users, macro system engagement). _Cannot_ access individual business ledgers.
 
 ## Core Structure
 
@@ -113,14 +114,26 @@ _Supported Formats: PDF, CSV_
 
 System checks the last recorded purchase date of a product and flags products not restocked within a defined time window. Calculated dynamically from existing data.
 
-## Security Model
 
-- Authentication required for every endpoint
-- Owner ID always derived from authentication token
-- Every record strictly tied to its owner
-- All database queries filtered by Owner ID
-- Admin endpoints restricted to aggregate queries only
-- Strict multi-tenant data isolation
+## Core Routing Flow
+
+The API routes are managed strictly by authentication and role middleware.
+
+1. **Public Routes** (`/api/auth`)
+   - `/register`: Allows Business Owners to create accounts.
+   - `/login`: Generates JWT tokens for secure authentication.
+
+2. **Protected User Routes** (`/api/user`)
+   - `/update`: Updates the currently authenticated user's profile.
+   - `/delete`: Deletes the user profile.
+
+3. **Protected Purchase Routes** (`/api/purchases`)
+   - `POST ""`: Creates a new Purchase Session.
+   - `GET ""`: Lists user's Purchase Sessions.
+   - `GET "/:id"`: Retrieves a specific Purchase Session.
+   - `PUT "/:id"`: Updates a specific Purchase Session.
+   - `DELETE "/:id"`: Deletes a specific Purchase Session.
+   - **Product Items Management:** Manage products within sessions dynamically (`PUT "/:id/items/:itemId"`, `DELETE "/:id/items/:itemId"`).
 
 ## Backend Tech Stack
 
@@ -129,38 +142,40 @@ System checks the last recorded purchase date of a product and flags products no
 - **Live Reload:** Air
 - **Authentication:** JWT
 - **Configuration:** godotenv
+- **Routing Structure:** Clean architecture with grouped API routers (`/api`)
 
-## Server Folder Structure
+
+## Server Directory Structure
 
 ```text
 server/
 ├── cmd/
 │   └── server/
-│       └── main.go
+│       └── main.go     # Entrypoint, DB Init, Route Setup
 ├── config/
-│   └── config.go
+│   └── config.go       # Load env vars
 ├── internal/
 │   ├── db/
-│   │   └── db.go
+│   │   └── db.go       # Postgres configuration
 │   ├── handler/
-│   │   ├── auth_handler.go
+│   │   ├── auth_handler.go     # Handles auth JSON requests
 │   │   ├── product_handler.go
-│   │   └── purchase_handler.go
+│   │   └── purchase_handler.go     # Handles ledger JSON requests
 │   ├── middleware/
-│   │   ├── auth_middleware.go
-│   │   └── role_middleware.go
+│   │   ├── auth_middleware.go      # JWT Verification
+│   │   └── role_middleware.go      # Role gating (e.g., Admin stats)
 │   ├── model/
-│   │   ├── User.go
-│   │   ├── product_item.go
-│   │   └── purchase_session.go
+│   │   ├── User.go                 # Owner/Admin models
+│   │   ├── product_item.go         # Product schema
+│   │   └── purchase_session.go     # Purchase schema
 │   ├── repository/
-│   │   ├── product_repo.go
-│   │   ├── purchase_repo.go
-│   │   └── user_repo.go
+│   │   ├── product_repo.go         # GORM interactions for Products
+│   │   ├── purchase_repo.go        # GORM interactions for Sessions
+│   │   └── user_repo.go            # GORM interactions for Users
 │   ├── routes/
-│   │   ├── auth_route.go
-│   │   ├── product_route.go
-│   │   └── purchase_route.go
+│   │   ├── auth_route.go           # Auth routes
+│   │   ├── product_route.go        # Product routes
+│   │   └── purchase_route.go       # Purchase routes
 │   └── services/
 │       ├── auth_service.go
 │       ├── product_service.go
@@ -171,8 +186,13 @@ server/
 │       ├── hashedPassword.go
 │       └── jwt.go
 ├── .air.toml
-├── .env
-├── .gitignore
-├── go.mod
-└── go.sum
+├── .env                        # Environment variables (Excluded from repo)
+├── .gitignore                  # Git ignore file
+├── go.mod                      # Go module file
+└── go.sum                      # Go module sum file
 ```
+
+
+## Security & Privacy Posture
+
+Every protected route requires validation via the `auth_middleware`. The middleware securely derives the active `Owner ID` directly from the validated token. Repositories automatically enforce this `Owner ID` on every database transaction, guaranteeing end-to-end data isolation with zero risk of cross-tenant exposure.
