@@ -11,6 +11,7 @@ import (
 func SetupRoutes(
 	router *gin.Engine,
 	authHandler *handler.AuthHandler,
+	purchaseHandler *handler.PurchaseHandler,
 ) {
 	api := router.Group("/api")
 
@@ -40,5 +41,5 @@ func SetupRoutes(
 	// Register separated routes
 	AuthRoutes(public, authHandler)
 	UserRoutes(protected, authHandler)
-
+	PurchaseRoutes(protected, purchaseHandler)
 }

@@ -16,18 +16,22 @@ import (
 
 type handlers struct {
 	auth *handler.AuthHandler
+	purchase *handler.PurchaseHandler	
 }
 
 func initHandlers(database *gorm.DB) *handlers {
 	// Repositories
 	userRepo := repository.NewUserRepository(database)
+	purchaseRepo := repository.NewPurchaseRepository(database)
 
 	// Services
 	authService := services.NewAuthService(userRepo)
+	purchaseService := services.NewPurchaseService(purchaseRepo)
 
 	// Handlers
 	return &handlers{
 		auth: handler.NewAuthHandler(authService),
+		purchase: handler.NewPurchaseHandler(purchaseService),
 	}
 }
 
@@ -44,7 +48,11 @@ func main() {
 	h := initHandlers(database)
 
 	r := gin.Default()
-	routes.SetupRoutes(r, h.auth)
+	routes.SetupRoutes(r, h.auth, h.purchase)
+
+	for _, route := range r.Routes() {
+		log.Println(route.Method, route.Path)
+	}
 
 	log.Println("Server running on port 8080")
 	if err := r.Run(":8080"); err != nil {
