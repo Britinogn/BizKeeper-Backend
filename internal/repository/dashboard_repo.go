@@ -151,3 +151,23 @@ func (r *PurchaseRepository) GetSessionsByDateRange(ctx context.Context, userID 
 		Find(&sessions).Error
 	return sessions, err
 }
+
+func (r *PurchaseRepository) GetReorderReminders(ctx context.Context, userID uuid.UUID, dayThreshold int) ([]model.ReorderReminder, error) {
+    var results []model.ReorderReminder
+
+    err := r.db.WithContext(ctx).Raw(`
+        SELECT 
+            pi.name as product,
+            pi.category,
+            MAX(ps.purchase_date) as last_purchased,
+            CURRENT_DATE - MAX(ps.purchase_date::date) as days_since_last_purchase
+        FROM product_items pi
+        JOIN purchase_sessions ps ON ps.id = pi.session_id
+        WHERE ps.user_id = $1 AND ps.deleted_at IS NULL AND pi.deleted_at IS NULL
+        GROUP BY pi.name, pi.category
+        HAVING CURRENT_DATE - MAX(ps.purchase_date::date) >= $2
+        ORDER BY days_since_last_purchase DESC
+    `, userID, dayThreshold).Scan(&results).Error
+
+    return results, err
+}

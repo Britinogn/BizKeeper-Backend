@@ -12,3 +12,4 @@ func DashboardRoutes(rg *gin.RouterGroup, dashboardHandler *handler.DashboardHan
 		dashboard.GET("/price-history", dashboardHandler.GetPriceHistory)
 	}
 }
+

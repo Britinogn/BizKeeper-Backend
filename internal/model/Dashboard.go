@@ -39,3 +39,10 @@ type PriceHistory struct {
 	Change        float64   `json:"change"`
 	LastPurchased time.Time `json:"last_purchased"`
 }
+
+type ReorderReminder struct {
+    Product               string    `json:"product"`
+    Category              string    `json:"category"`
+    LastPurchased         time.Time `json:"last_purchased"`
+    DaysSinceLastPurchase int       `json:"days_since_last_purchase"`
+}

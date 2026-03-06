@@ -14,6 +14,7 @@ func SetupRoutes(
 	purchaseHandler *handler.PurchaseHandler,
 	dashboardHandler *handler.DashboardHandler,
 	exportHandler *handler.ExportHandler,
+	reorderHandler *handler.ReorderHandler,
 ) {
 	api := router.Group("/api")
 
@@ -46,4 +47,5 @@ func SetupRoutes(
 	PurchaseRoutes(protected, purchaseHandler)
 	DashboardRoutes(protected, dashboardHandler)
 	ExportRoutes(protected, exportHandler)
+	ReorderRoutes(protected, reorderHandler)
 }
