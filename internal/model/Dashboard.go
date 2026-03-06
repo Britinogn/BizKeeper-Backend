@@ -60,3 +60,15 @@ type AdminStats struct {
 type AdminDashboardSummary struct {
 	Stats *AdminStats `json:"stats"`
 }
+
+type PaginatedSessions struct {
+	Sessions []PurchaseSession `json:"sessions"`
+	Meta     PaginationMeta    `json:"meta"`
+}
+
+type PaginationMeta struct {
+	Total   int64 `json:"total"`
+	Limit   int   `json:"limit"`
+	Offset  int   `json:"offset"`
+	HasMore bool  `json:"has_more"`
+}

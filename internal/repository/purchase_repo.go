@@ -37,6 +37,14 @@ func (r *PurchaseRepository) ListPurchaseSessions(ctx context.Context, userID uu
 	return sessions, err
 }
 
+func (r *PurchaseRepository) CountPurchaseSessions(ctx context.Context, userID uuid.UUID) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&model.PurchaseSession{}).
+		Where("user_id = ? AND deleted_at IS NULL", userID).
+		Count(&count).Error
+	return count, err
+}
+
 func (r *PurchaseRepository) UpdatePurchaseSession(ctx context.Context, session *model.PurchaseSession) error {
 	// Start a transaction to handle both session and items
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -65,23 +73,6 @@ func (r *PurchaseRepository) UpdatePurchaseSession(ctx context.Context, session 
 	})
 }
 
-// func (r *PurchaseRepository) DeletePurchaseSession(ctx context.Context, session *model.PurchaseSession) error {
-// 	// Start a transaction to handle both session and items
-// 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-// 		// Delete items first (foreign key constraint)
-// 		if err := tx.Where("session_id = ?", session.ID).Delete(&model.ProductItem{}).Error; err != nil {
-// 			return fmt.Errorf("failed to delete items: %w", err)
-// 		}
-
-// 		// Delete the session
-// 		if err := tx.Delete(session).Error; err != nil {
-// 			return fmt.Errorf("failed to delete session: %w", err)
-// 		}
-
-// 		return nil
-// 	})
-// }
-
 func (r *PurchaseRepository) DeletePurchaseSession(ctx context.Context, session *model.PurchaseSession) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		// Hard delete items first using raw SQL
@@ -97,7 +88,6 @@ func (r *PurchaseRepository) DeletePurchaseSession(ctx context.Context, session 
 		return nil
 	})
 }
-
 
 
 // BELOW IS TO FETCH A SINGLE Item SESSION

@@ -21,6 +21,7 @@ type PurchaseRepo interface {
 	CreatePurchaseSession(ctx context.Context, session *model.PurchaseSession) error
 	GetPurchaseSessionByID(ctx context.Context, id uuid.UUID) (*model.PurchaseSession, error)
 	ListPurchaseSessions(ctx context.Context, userID uuid.UUID, limit, offset int) ([]model.PurchaseSession, error)
+	CountPurchaseSessions(ctx context.Context, userID uuid.UUID) (int64, error)
 	UpdatePurchaseSession(ctx context.Context, session *model.PurchaseSession) error
 	DeletePurchaseSession(ctx context.Context, session *model.PurchaseSession) error
 
@@ -87,7 +88,7 @@ func (s *PurchaseService) GetPurchaseSessionByID(ctx context.Context, userID, se
 	return session, nil
 }
 
-func (s *PurchaseService) ListPurchaseSessions(ctx context.Context, userID uuid.UUID, limit, offset int) ([]model.PurchaseSession, error) {
+func (s *PurchaseService) ListPurchaseSessions(ctx context.Context, userID uuid.UUID, limit, offset int) (*model.PaginatedSessions, error) {
 	if limit <= 0 {
 		limit = 10
 	}
@@ -97,17 +98,31 @@ func (s *PurchaseService) ListPurchaseSessions(ctx context.Context, userID uuid.
 
 	sessions, err := s.purchaseRepo.ListPurchaseSessions(ctx, userID, limit, offset)
 	if err != nil {
-		return nil, ErrSessionNotFound
+		return nil, err
 	}
 
+	// Calculate totals
 	for i := range sessions {
-    for j := range sessions[i].ProductItems {
-        sessions[i].ProductItems[j].SubtotalAmount = float64(sessions[i].ProductItems[j].Quantity) * sessions[i].ProductItems[j].UnitPrice
-        sessions[i].TotalAmount += sessions[i].ProductItems[j].SubtotalAmount
-    }
-}
+		for j := range sessions[i].ProductItems {
+			sessions[i].ProductItems[j].SubtotalAmount = float64(sessions[i].ProductItems[j].Quantity) * sessions[i].ProductItems[j].UnitPrice
+			sessions[i].TotalAmount += sessions[i].ProductItems[j].SubtotalAmount
+		}
+	}
 
-	return sessions, nil
+	total, err := s.purchaseRepo.CountPurchaseSessions(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.PaginatedSessions{
+		Sessions: sessions,
+		Meta: model.PaginationMeta{
+			Total:   total,
+			Limit:   limit,
+			Offset:  offset,
+			HasMore: int64(offset+limit) < total,
+		},
+	}, nil
 }
 
 func (s *PurchaseService) UpdatePurchaseSession(ctx context.Context, userID, sessionID uuid.UUID, updated *model.PurchaseSession) error {
