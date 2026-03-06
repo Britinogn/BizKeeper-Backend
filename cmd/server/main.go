@@ -18,6 +18,7 @@ type handlers struct {
 	auth *handler.AuthHandler
 	purchase *handler.PurchaseHandler	
 	dashboard *handler.DashboardHandler
+	export *handler.ExportHandler
 }
 
 func initHandlers(database *gorm.DB) *handlers {
@@ -30,12 +31,16 @@ func initHandlers(database *gorm.DB) *handlers {
 	authService := services.NewAuthService(userRepo)
 	purchaseService := services.NewPurchaseService(purchaseRepo)
 	dashboardService := services.NewDashboardService(purchaseRepo)
+	exportService := services.NewExportService(purchaseRepo)
+
 
 	// Handlers
 	return &handlers{
 		auth: handler.NewAuthHandler(authService),
 		purchase: handler.NewPurchaseHandler(purchaseService),
 		dashboard: handler.NewDashboardHandler(dashboardService),
+		export: handler.NewExportHandler(exportService),
+
 	}
 }
 
@@ -52,7 +57,7 @@ func main() {
 	h := initHandlers(database)
 
 	r := gin.Default()
-	routes.SetupRoutes(r, h.auth, h.purchase, h.dashboard)
+	routes.SetupRoutes(r, h.auth, h.purchase, h.dashboard,h.export )
 
 	for _, route := range r.Routes() {
 		log.Println(route.Method, route.Path)

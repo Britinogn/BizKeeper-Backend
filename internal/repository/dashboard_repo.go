@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/britinogn/bizkeeper/internal/model"
 	"github.com/google/uuid"
@@ -139,4 +140,14 @@ func (r *PurchaseRepository) GetPriceHistory(ctx context.Context, userID uuid.UU
 	`, userID).Scan(&results).Error
 
 	return results, err
+}
+
+func (r *PurchaseRepository) GetSessionsByDateRange(ctx context.Context, userID uuid.UUID, from, to time.Time) ([]model.PurchaseSession, error) {
+	var sessions []model.PurchaseSession
+	err := r.db.WithContext(ctx).
+		Preload("ProductItems").
+		Where("user_id = ? AND purchase_date BETWEEN ? AND ? AND deleted_at IS NULL", userID, from, to).
+		Order("purchase_date desc").
+		Find(&sessions).Error
+	return sessions, err
 }
