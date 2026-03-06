@@ -110,3 +110,33 @@ func (r *PurchaseRepository) GetRecentSessions(ctx context.Context, userID uuid.
 		Find(&sessions).Error
 	return sessions, err
 }
+
+
+func (r *PurchaseRepository) GetPriceHistory(ctx context.Context, userID uuid.UUID) ([]model.PriceHistory, error) {
+	var results []model.PriceHistory
+
+	err := r.db.WithContext(ctx).Raw(`
+		WITH ranked_prices AS (
+			SELECT 
+				pi.name,
+				pi.unit_price,
+				ps.purchase_date,
+				ROW_NUMBER() OVER (PARTITION BY pi.name ORDER BY ps.purchase_date DESC) as rn
+			FROM product_items pi
+			JOIN purchase_sessions ps ON ps.id = pi.session_id
+			WHERE ps.user_id = ? AND ps.deleted_at IS NULL AND pi.deleted_at IS NULL
+		)
+		SELECT
+			a.name as product,
+			a.unit_price as latest_price,
+			b.unit_price as previous_price,
+			a.unit_price - COALESCE(b.unit_price, a.unit_price) as change,
+			a.purchase_date as last_purchased
+		FROM ranked_prices a
+		LEFT JOIN ranked_prices b ON a.name = b.name AND b.rn = 2
+		WHERE a.rn = 1
+		ORDER BY a.name
+	`, userID).Scan(&results).Error
+
+	return results, err
+}

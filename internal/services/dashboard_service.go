@@ -13,6 +13,7 @@ type DashboardRepo interface {
 	GetSpendingBySupplier(ctx context.Context, userID uuid.UUID) ([]model.SupplierSpending, error)
 	GetDashboardStats(ctx context.Context, userID uuid.UUID) (*model.DashboardStats, error)
 	GetRecentSessions(ctx context.Context, userID uuid.UUID) ([]model.PurchaseSession, error)
+	GetPriceHistory(ctx context.Context, userID uuid.UUID) ([]model.PriceHistory, error)
 }
 
 type DashboardService struct {
@@ -69,4 +70,8 @@ func (s *DashboardService) GetDashboardSummary(ctx context.Context, userID uuid.
 		BySupplier:     bySupplier,
 		RecentSessions: recentSessions,
 	}, nil
+}
+
+func (s *DashboardService) GetPriceHistory(ctx context.Context, userID uuid.UUID) ([]model.PriceHistory, error) {
+	return s.dashboardRepo.GetPriceHistory(ctx, userID)
 }

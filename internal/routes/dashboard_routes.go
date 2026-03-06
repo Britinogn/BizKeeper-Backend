@@ -9,5 +9,6 @@ func DashboardRoutes(rg *gin.RouterGroup, dashboardHandler *handler.DashboardHan
 	dashboard := rg.Group("/dashboard")
 	{
 		dashboard.GET("/summary", dashboardHandler.GetDashboardSummary)
+		dashboard.GET("/price-history", dashboardHandler.GetPriceHistory)
 	}
 }

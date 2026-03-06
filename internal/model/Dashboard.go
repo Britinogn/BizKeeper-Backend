@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type CategorySpending struct {
 	Category string  `json:"category"`
 	Total    float64 `json:"total"`
@@ -28,4 +30,12 @@ type DashboardSummary struct {
 	ByMonth        []MonthlySpending  `json:"by_month"`
 	BySupplier     []SupplierSpending `json:"by_supplier"`
 	RecentSessions []PurchaseSession  `json:"recent_sessions"`
+}
+
+type PriceHistory struct {
+	Product       string    `json:"product"`
+	LatestPrice   float64   `json:"latest_price"`
+	PreviousPrice float64   `json:"previous_price"`
+	Change        float64   `json:"change"`
+	LastPurchased time.Time `json:"last_purchased"`
 }

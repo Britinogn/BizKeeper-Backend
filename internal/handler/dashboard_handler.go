@@ -36,3 +36,25 @@ func (h *DashboardHandler) GetDashboardSummary(c *gin.Context) {
 
 	response.OK(c, "dashboard summary fetched successfully", summary)
 }
+
+func (h *DashboardHandler) GetPriceHistory(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		response.Unauthorized(c, "unauthorized")
+		return
+	}
+
+	parsedUserID, err := uuid.Parse(userID.(string))
+	if err != nil {
+		response.Unauthorized(c, "invalid user ID")
+		return
+	}
+
+	history, err := h.dashboardService.GetPriceHistory(c.Request.Context(), parsedUserID)
+	if err != nil {
+		response.InternalServerError(c, "something went wrong")
+		return
+	}
+
+	response.OK(c, "price history fetched successfully", history)
+}
