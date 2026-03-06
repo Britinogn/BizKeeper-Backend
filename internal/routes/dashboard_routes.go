@@ -12,7 +12,7 @@ func DashboardRoutes(rg *gin.RouterGroup, dashboardHandler *handler.DashboardHan
 		dashboard.GET("/summary", dashboardHandler.GetDashboardSummary)
 		dashboard.GET("/price-history", dashboardHandler.GetPriceHistory)
 		dashboard.GET("/admin", middleware.AdminOnly("admin"), dashboardHandler.GetAdminDashboard)
-
+		dashboard.GET("/reorder-reminders", dashboardHandler.GetReorderReminders)
 	}
 }
 

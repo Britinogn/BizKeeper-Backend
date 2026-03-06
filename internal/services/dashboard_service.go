@@ -15,6 +15,7 @@ type DashboardRepo interface {
 	GetRecentSessions(ctx context.Context, userID uuid.UUID) ([]model.PurchaseSession, error)
 	GetPriceHistory(ctx context.Context, userID uuid.UUID) ([]model.PriceHistory, error)
 	GetAdminDashboardStats(ctx context.Context) (*model.AdminStats, error)
+	GetReorderReminders(ctx context.Context, userID uuid.UUID) ([]model.ReorderReminder, error)
 }
 
 type DashboardService struct {
@@ -80,4 +81,9 @@ func (s *DashboardService) GetPriceHistory(ctx context.Context, userID uuid.UUID
 // admin dashboard only
 func (s *DashboardService) GetAdminDashboard(ctx context.Context) (*model.AdminStats, error) {
 	return s.dashboardRepo.GetAdminDashboardStats(ctx)
+}
+
+
+func (s *DashboardService) GetReorderReminders(ctx context.Context, userID uuid.UUID) ([]model.ReorderReminder, error) {
+	return s.dashboardRepo.GetReorderReminders(ctx, userID)
 }

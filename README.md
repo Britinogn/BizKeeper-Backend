@@ -6,7 +6,6 @@ The system preserves the context of each buying event and transforms raw records
 
 This directory contains the Go-based backend server which powers the entire BizKeeper ecosystem.
 
-
 ## Architectural Identity
 
 BizKeeper is a multi-tenant, purchase session-based ledger system that provides structured financial tracking for business product purchases while enforcing strict data privacy and role-based access control.
@@ -14,8 +13,8 @@ BizKeeper is a multi-tenant, purchase session-based ledger system that provides 
 It is simple, focused, and purpose-built for secure digital purchase management.
 
 ## Users & Roles
-The system operates strictly on a multi-tenant RBAC (Role-Based Access Control) system:
 
+The system operates strictly on a multi-tenant RBAC (Role-Based Access Control) system:
 
 ### Business Owner
 
@@ -114,7 +113,6 @@ _Supported Formats: PDF, CSV_
 
 System checks the last recorded purchase date of a product and flags products not restocked within a defined time window. Calculated dynamically from existing data.
 
-
 ## Core Routing Flow
 
 The API routes are managed strictly by authentication and role middleware.
@@ -136,6 +134,15 @@ The API routes are managed strictly by authentication and role middleware.
    - `DELETE "/:id"`: Deletes a specific Purchase Session.
    - **Product Items Management:** Manage products within sessions dynamically (`PUT "/:id/items/:itemId"`, `DELETE "/:id/items/:itemId"`).
 
+4. **Protected Dashboard Routes** (`/api/dashboard`)
+   - `GET "/summary"`: Retrieves financial dashboard summary.
+   - `GET "/price-history"`: Retrieves historical price trends.
+   - `GET "/admin"`: Admin-only platform statistics.
+   - `GET "/reorder-reminders"`: Retrieves products needing restocking.
+
+5. **Protected Export Routes** (`/api/export`)
+   - `GET ""`: Generates CSV/PDF export data.
+
 ## Backend Tech Stack
 
 - **Framework:** Gin
@@ -144,7 +151,6 @@ The API routes are managed strictly by authentication and role middleware.
 - **Authentication:** JWT
 - **Configuration:** godotenv
 - **Routing Structure:** Clean architecture with grouped API routers (`/api`)
-
 
 ## Server Directory Structure
 
@@ -159,9 +165,12 @@ server/
 │   ├── db/
 │   │   └── db.go       # Postgres configuration
 │   ├── handler/
-│   │   ├── auth_handler.go     # Handles auth JSON requests
+│   │   ├── auth_handler.go         # Handles auth JSON requests
+│   │   ├── dashboard_handler.go    # Handles analytics/dashboard requests
+│   │   ├── export_handler.go       # Handles data exports
 │   │   ├── product_handler.go
-│   │   └── purchase_handler.go     # Handles ledger JSON requests
+│   │   ├── purchase_handler.go     # Handles ledger JSON requests
+│   │   └── reorder_handler.go
 │   ├── middleware/
 │   │   ├── auth_middleware.go      # JWT Verification
 │   │   └── role_middleware.go      # Role gating (e.g., Admin stats)
@@ -170,17 +179,25 @@ server/
 │   │   ├── product_item.go         # Product schema
 │   │   └── purchase_session.go     # Purchase schema
 │   ├── repository/
+│   │   ├── dashboard_repo.go       # GORM interactions for Dashboard stats
 │   │   ├── product_repo.go         # GORM interactions for Products
 │   │   ├── purchase_repo.go        # GORM interactions for Sessions
 │   │   └── user_repo.go            # GORM interactions for Users
 │   ├── routes/
 │   │   ├── auth_route.go           # Auth routes
+│   │   ├── dashboard_routes.go     # Dashboard routes
+│   │   ├── export_route.go         # Export routes
 │   │   ├── product_route.go        # Product routes
-│   │   └── purchase_route.go       # Purchase routes
+│   │   ├── purchase_route.go       # Purchase routes
+│   │   ├── reorder_routes.go
+│   │   └── routes.go               # Main router setup
 │   └── services/
 │       ├── auth_service.go
+│       ├── dashboard_service.go
+│       ├── export _service.go
 │       ├── product_service.go
-│       └── purchase_service.go
+│       ├── purchase_service.go
+│       └── reorder_service.go
 ├── pkg/
 │   ├── response/
 │   └── utils/
@@ -192,7 +209,6 @@ server/
 ├── go.mod                      # Go module file
 └── go.sum                      # Go module sum file
 ```
-
 
 ## Security & Privacy Posture
 

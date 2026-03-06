@@ -59,6 +59,28 @@ func (h *DashboardHandler) GetPriceHistory(c *gin.Context) {
 	response.OK(c, "price history fetched successfully", history)
 }
 
+func (h *DashboardHandler) GetReorderReminders(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		response.Unauthorized(c, "unauthorized")
+		return
+	}
+
+	parsedUserID, err := uuid.Parse(userID.(string))
+	if err != nil {
+		response.Unauthorized(c, "invalid user ID")
+		return
+	}
+
+	reminders, err := h.dashboardService.GetReorderReminders(c.Request.Context(), parsedUserID)
+	if err != nil {
+		response.InternalServerError(c, "something went wrong")
+		return
+	}
+
+	response.OK(c, "reorder reminders fetched successfully", reminders)
+}
+
 
 // admin dashboard only
 func (h *DashboardHandler) GetAdminDashboard(c *gin.Context) {
