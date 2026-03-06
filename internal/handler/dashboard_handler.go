@@ -58,3 +58,15 @@ func (h *DashboardHandler) GetPriceHistory(c *gin.Context) {
 
 	response.OK(c, "price history fetched successfully", history)
 }
+
+
+// admin dashboard only
+func (h *DashboardHandler) GetAdminDashboard(c *gin.Context) {
+	stats, err := h.dashboardService.GetAdminDashboard(c.Request.Context())
+	if err != nil {
+		response.InternalServerError(c, "something went wrong")
+		return
+	}
+
+	response.OK(c, "admin dashboard fetched successfully", stats)
+}

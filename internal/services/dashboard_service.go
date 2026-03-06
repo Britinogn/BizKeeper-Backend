@@ -14,6 +14,7 @@ type DashboardRepo interface {
 	GetDashboardStats(ctx context.Context, userID uuid.UUID) (*model.DashboardStats, error)
 	GetRecentSessions(ctx context.Context, userID uuid.UUID) ([]model.PurchaseSession, error)
 	GetPriceHistory(ctx context.Context, userID uuid.UUID) ([]model.PriceHistory, error)
+	GetAdminDashboardStats(ctx context.Context) (*model.AdminStats, error)
 }
 
 type DashboardService struct {
@@ -74,4 +75,9 @@ func (s *DashboardService) GetDashboardSummary(ctx context.Context, userID uuid.
 
 func (s *DashboardService) GetPriceHistory(ctx context.Context, userID uuid.UUID) ([]model.PriceHistory, error) {
 	return s.dashboardRepo.GetPriceHistory(ctx, userID)
+}
+
+// admin dashboard only
+func (s *DashboardService) GetAdminDashboard(ctx context.Context) (*model.AdminStats, error) {
+	return s.dashboardRepo.GetAdminDashboardStats(ctx)
 }

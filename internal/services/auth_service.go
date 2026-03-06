@@ -74,6 +74,7 @@ func (s *AuthService) Register(ctx context.Context, req *model.RegistrationReque
 		LastName:  req.LastName,
 		Email:     req.Email,
 		Password:  req.Password,
+		Role:      req.Role,
 	}
 
 	if err := s.userRepo.CreateUser(ctx, user); err != nil {

@@ -46,3 +46,17 @@ type ReorderReminder struct {
     LastPurchased         time.Time `json:"last_purchased"`
     DaysSinceLastPurchase int       `json:"days_since_last_purchase"`
 }
+
+//admin dashboard
+type AdminStats struct {
+	TotalUsers             int64 `json:"total_users"`
+	TotalSessions          int64 `json:"total_sessions"`
+	TotalProductItems      int64 `json:"total_product_items"`
+	ActiveUsersLast7Days   int64 `json:"active_users_last_7_days"`
+	ActiveUsersLast30Days  int64 `json:"active_users_last_30_days"`
+	NewUsersThisMonth      int64 `json:"new_users_this_month"`
+}
+
+type AdminDashboardSummary struct {
+	Stats *AdminStats `json:"stats"`
+}

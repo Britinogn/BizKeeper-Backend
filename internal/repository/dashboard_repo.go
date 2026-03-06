@@ -171,3 +171,41 @@ func (r *PurchaseRepository) GetReorderReminders(ctx context.Context, userID uui
 
     return results, err
 }
+
+
+// admin dashboard only
+func (r *PurchaseRepository) GetAdminDashboardStats(ctx context.Context) (*model.AdminStats, error) {
+	var stats model.AdminStats
+
+	// Total registered users
+	r.db.WithContext(ctx).Model(&model.User{}).
+		Where("deleted_at IS NULL").
+		Count(&stats.TotalUsers)
+
+	// Total purchase sessions
+	r.db.WithContext(ctx).Model(&model.PurchaseSession{}).
+		Where("deleted_at IS NULL").
+		Count(&stats.TotalSessions)
+
+	// Total product items
+	r.db.WithContext(ctx).Model(&model.ProductItem{}).
+		Where("deleted_at IS NULL").
+		Count(&stats.TotalProductItems)
+
+	// Active users last 7 days
+	r.db.WithContext(ctx).Model(&model.User{}).
+		Where("updated_at >= ? AND deleted_at IS NULL", time.Now().AddDate(0, 0, -7)).
+		Count(&stats.ActiveUsersLast7Days)
+
+	// Active users last 30 days
+	r.db.WithContext(ctx).Model(&model.User{}).
+		Where("updated_at >= ? AND deleted_at IS NULL", time.Now().AddDate(0, 0, -30)).
+		Count(&stats.ActiveUsersLast30Days)
+
+	// New users this month
+	r.db.WithContext(ctx).Model(&model.User{}).
+		Where("created_at >= ? AND deleted_at IS NULL", time.Now().AddDate(0, 0, -30)).
+		Count(&stats.NewUsersThisMonth)
+
+	return &stats, nil
+}
