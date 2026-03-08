@@ -24,43 +24,108 @@ func Init() {
 	log.Println("Warning: .env file not found in any location")
 }
 
+// func ConnectPostgres(ctx context.Context, cfg *config.Config) (*gorm.DB, error) {
+// 	host := cfg.DBHost
+// 	port := cfg.DBPort
+// 	user := cfg.DBUser
+// 	password := cfg.DBPassword
+// 	dbName := cfg.DBName
+// 	sslmode := cfg.DBSSLMode
+
+// 	if sslmode == "" {
+// 		sslmode = "require"
+// 	}
+
+// 	if host == "" || port == "" || user == "" || password == "" || dbName == "" {
+// 		return nil, fmt.Errorf("missing required database environment variables")
+// 	}
+
+// 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+// 		host, port, user, password, dbName, sslmode)
+
+// 	var err error
+// 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to connect to database: %w", err)
+// 	}
+
+// 	sqlDB, err := DB.DB()
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to get sql.DB: %w", err)
+// 	}
+
+// 	if err := sqlDB.PingContext(ctx); err != nil {
+// 		return nil, fmt.Errorf("failed to ping database: %w", err)
+// 	}
+
+// 	log.Println("Database ping successful")
+// 	log.Println("Successfully connected to database")
+// 	return DB, nil
+// }
+
 func ConnectPostgres(ctx context.Context, cfg *config.Config) (*gorm.DB, error) {
-	host := cfg.DBHost
-	port := cfg.DBPort
-	user := cfg.DBUser
-	password := cfg.DBPassword
-	dbName := cfg.DBName
-	sslmode := cfg.DBSSLMode
 
-	if sslmode == "" {
-		sslmode = "require"
-	}
+    // 1. Prefer DATABASE_URL if provided (Render / production)
+    if cfg.DatabaseURL != "" {
+        var err error
 
-	if host == "" || port == "" || user == "" || password == "" || dbName == "" {
-		return nil, fmt.Errorf("missing required database environment variables")
-	}
+        DB, err = gorm.Open(postgres.Open(cfg.DatabaseURL), &gorm.Config{})
+        if err != nil {
+            return nil, fmt.Errorf("failed to connect using DATABASE_URL: %w", err)
+        }
 
-	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		host, port, user, password, dbName, sslmode)
+        sqlDB, err := DB.DB()
+        if err != nil {
+            return nil, fmt.Errorf("failed to get sql.DB: %w", err)
+        }
 
-	var err error
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database: %w", err)
-	}
+        if err := sqlDB.PingContext(ctx); err != nil {
+            return nil, fmt.Errorf("failed to ping database: %w", err)
+        }
 
-	sqlDB, err := DB.DB()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get sql.DB: %w", err)
-	}
+        log.Println("Connected using DATABASE_URL")
+        return DB, nil
+    }
 
-	if err := sqlDB.PingContext(ctx); err != nil {
-		return nil, fmt.Errorf("failed to ping database: %w", err)
-	}
+    // 2. fallback to your existing env variables
+    host := cfg.DBHost
+    port := cfg.DBPort
+    user := cfg.DBUser
+    password := cfg.DBPassword
+    dbName := cfg.DBName
+    sslmode := cfg.DBSSLMode
 
-	log.Println("Database ping successful")
-	log.Println("Successfully connected to database")
-	return DB, nil
+    if sslmode == "" {
+        sslmode = "require"
+    }
+
+    if host == "" || port == "" || user == "" || password == "" || dbName == "" {
+        return nil, fmt.Errorf("missing required database environment variables")
+    }
+
+    dsn := fmt.Sprintf(
+        "host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+        host, port, user, password, dbName, sslmode,
+    )
+
+    var err error
+    DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+    if err != nil {
+        return nil, fmt.Errorf("failed to connect to database: %w", err)
+    }
+
+    sqlDB, err := DB.DB()
+    if err != nil {
+        return nil, fmt.Errorf("failed to get sql.DB: %w", err)
+    }
+
+    if err := sqlDB.PingContext(ctx); err != nil {
+        return nil, fmt.Errorf("failed to ping database: %w", err)
+    }
+
+    log.Println("Database ping successful")
+    log.Println("Successfully connected to database")
+    return DB, nil
 }
 
 
