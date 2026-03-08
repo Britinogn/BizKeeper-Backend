@@ -3,15 +3,18 @@ package main
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/britinogn/bizkeeper/config"
 	"github.com/britinogn/bizkeeper/internal/db"
 	"github.com/britinogn/bizkeeper/internal/handler"
+	"github.com/britinogn/bizkeeper/internal/middleware"
 	"github.com/britinogn/bizkeeper/internal/repository"
 	"github.com/britinogn/bizkeeper/internal/routes"
 	"github.com/britinogn/bizkeeper/internal/services"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/time/rate"
 	"gorm.io/gorm"
 )
 
@@ -71,7 +74,12 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	routes.SetupRoutes(r, h.auth, h.purchase, h.dashboard, h.export)
+	// Rate limiters
+	authLimiter := middleware.NewRateLimiter(rate.Every(time.Minute), 5)  // 5 attempts per minute per IP
+	apiLimiter  := middleware.NewRateLimiter(rate.Every(time.Second), 30) // 30 requests per second per IP
+
+
+	routes.SetupRoutes(r, h.auth, h.purchase, h.dashboard, h.export, authLimiter, apiLimiter)
 
 	for _, route := range r.Routes() {
 		log.Println(route.Method, route.Path)

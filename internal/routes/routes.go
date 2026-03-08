@@ -14,7 +14,8 @@ func SetupRoutes(
 	purchaseHandler *handler.PurchaseHandler,
 	dashboardHandler *handler.DashboardHandler,
 	exportHandler *handler.ExportHandler,
-	// reorderHandler *handler.ReorderHandler,
+	authLimiter *middleware.RateLimiter,
+	apiLimiter *middleware.RateLimiter,
 ) {
 	api := router.Group("/api")
 
@@ -32,20 +33,17 @@ func SetupRoutes(
 		})
 	})
 
-	// Public
+	// Public routes
 	public := api.Group("")
 
-	// Protected
+	// Protected routes
 	protected := api.Group("")
 	protected.Use(middleware.AuthMiddleware())
-	// _ = protected // add this line
-	// protected.Use(middleware.AdminOnly())
 
 	// Register separated routes
-	AuthRoutes(public, authHandler)
-	UserRoutes(protected, authHandler)
+	AuthRoutes(public, authHandler, authLimiter)
+	UserRoutes(protected, authHandler, apiLimiter)
 	PurchaseRoutes(protected, purchaseHandler)
 	DashboardRoutes(protected, dashboardHandler)
 	ExportRoutes(protected, exportHandler)
-	//ReorderRoutes(protected, reorderHandler)
 }

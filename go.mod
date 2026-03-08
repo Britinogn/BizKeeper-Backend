@@ -12,6 +12,8 @@ require (
 	gorm.io/gorm v1.31.1
 )
 
+require golang.org/x/time v0.15.0
+
 require (
 	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic v1.15.0 // indirect
