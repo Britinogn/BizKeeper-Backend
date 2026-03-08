@@ -3,14 +3,14 @@ module github.com/britinogn/bizkeeper
 go 1.25.4
 
 require (
+	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.12.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
+	github.com/jung-kurt/gofpdf v1.16.2
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.1
 )
-
-require github.com/jung-kurt/gofpdf v1.16.2 // indirect
 
 require (
 	github.com/bytedance/gopkg v0.1.3 // indirect
