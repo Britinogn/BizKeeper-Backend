@@ -65,6 +65,13 @@ func (s *DashboardService) GetDashboardSummary(ctx context.Context, userID uuid.
 		}
 	}
 
+	// calculate total spend from category totals
+	var totalSpend float64
+	for _, c := range byCategory {
+		totalSpend += c.Total
+	}
+	stats.TotalSpend = totalSpend
+
 	return &model.DashboardSummary{
 		Stats:          stats,
 		ByCategory:     byCategory,

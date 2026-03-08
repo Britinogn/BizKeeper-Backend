@@ -20,6 +20,7 @@ type SupplierSpending struct {
 type DashboardStats struct {
 	TotalSessions      int64  `json:"total_sessions"`
 	TotalProducts      int64  `json:"total_products"`
+	TotalSpend         float64 `json:"total_spend"`
 	MostBoughtCategory string `json:"most_bought_category"`
 	MostBoughtProduct  string `json:"most_bought_product"`
 }
