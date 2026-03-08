@@ -24,6 +24,6 @@ func Load() *Config {
 		DBName:      os.Getenv("DB_NAME"),
 		DBSSLMode:   os.Getenv("DB_SSLMODE"),
 		ServerPort:  os.Getenv("SERVER_PORT"),
-		DatabaseURL: os.Getenv("DATABASE_URL"),
+		DatabaseURL: os.Getenv("SUPABASE_URL"),
 	}
 }
